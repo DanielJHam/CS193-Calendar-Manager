@@ -1,5 +1,4 @@
 Edstem_API_KEY:
-BrightSpace_USER:
-BrightSpace_PASS:
+BrightSpace_Calendar_Token:
 MYLab_USER:
 MYLab_PASS:
