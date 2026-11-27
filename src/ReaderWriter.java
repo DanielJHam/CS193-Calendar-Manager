@@ -2,7 +2,7 @@ import java.io.*;
 
 public class ReaderWriter {
     public static String[] readInfo(){
-        String[] output = new String[5];
+        String[] output = new String[4];
             try (BufferedReader br = new BufferedReader(new FileReader("src/info.txt"));
                  PrintWriter pw = new PrintWriter(new FileWriter("src/Error.txt"), true)) {
                 for (int index = 0; index < output.length; index++) {
