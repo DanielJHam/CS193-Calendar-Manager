@@ -1,24 +1,22 @@
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 public class Assignment {
-    private String course;
     private String name;
-    private LocalDateTime dueDate;
+    private OffsetDateTime dueDate;
 
-    public Assignment(String course, String name, LocalDateTime dueDate) {
-        this.course = course;
+    public Assignment( String name, String dueDate){
         this.name = name;
-        this.dueDate = dueDate;
+        this.dueDate = OffsetDateTime.parse(dueDate);
     }
 
-    public String getCourse {
-        return course;
+    public Assignment(String name) {
+        this.name = name;
+        dueDate = null;
     }
-
-    public String getName {
+    public String getName(){
         return name;
     }
 
-    public LocalDateTime getDueDate {
+    public OffsetDateTime getDueDate(){
         return dueDate;
     }
 
