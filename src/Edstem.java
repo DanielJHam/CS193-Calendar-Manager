@@ -9,7 +9,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 public class Edstem {
     HttpClient client;
-    private static final String URLS = "https://edstem.org";
+    private static final String URLS = "https://us.edstem.org/api";
     private String apiKey;
     private ArrayList<String> courseID;
     private ArrayList<Assignment> assignments;
@@ -18,11 +18,11 @@ public class Edstem {
         apiKey = key;
         courseID = new ArrayList<>();
         assignments = new ArrayList<>();
-        client = HttpClient.newHttpClient();
+        client = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).build();
     }
 
     private String buildAndGetCourses() throws IOException, InterruptedException {
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(URLS))
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(URLS+"/user"))
                 .header("Authorization", "Bearer " + apiKey)
                 .header("Accept", "application/json")
                 .GET()
@@ -45,19 +45,21 @@ public class Edstem {
                 JSONObject courseData = (JSONObject) itemData.get("course");
                 String status = (String) courseData.get("status");
                 if (status.equals("active")) {
-                    courseID.add((String) courseData.get("id"));
+                    courseID.add("" + courseData.get("id"));
                 }
             }
         } catch (IOException i) {
             ReaderWriter.writeError("Invalid Input");
         } catch (InterruptedException e) {
             ReaderWriter.writeError("Interrupted Connection");
+        } catch (NullPointerException n) {
+            ReaderWriter.writeError("Courses is null");
         }
     }
     public void getAssignmentJSON() {
         try {
             for (String id : courseID) {
-                HttpRequest request = HttpRequest.newBuilder().uri(URI.create(URLS + "/" + id + "/lessons?limit=100"))
+                HttpRequest request = HttpRequest.newBuilder().uri(URI.create(URLS + "/courses/" + id + "/lessons?limit=300"))
                         .header("Authorization", "Bearer " + apiKey)
                         .header("Accept", "application/json")
                         .GET()
@@ -82,14 +84,14 @@ public class Edstem {
                 JSONArray lessons = (JSONArray) jsonContents.get("lessons");
                 for(Object lesson : lessons) {
                     JSONObject lessonData = (JSONObject) lesson;
-                    String status = (String) lessonData.get("state");
-                    if(!(status.equals("completed"))) {
+                    //IO.println(lessonData.keySet());
+                    String submitted = (String) lessonData.get("submitted_at");
+                    String status = (String) lessonData.get("status");
+                    if(submitted == null && !(status.equals("closed"))) {
                         String title = (String) lessonData.get("title");
                         String date = (String) lessonData.get("due_at");
                         if (date != null) {
                             assignments.add(new Assignment(title, date));
-                        } else {
-                            assignments.add(new Assignment(title));
                         }
                     }
                 }
